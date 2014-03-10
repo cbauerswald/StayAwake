@@ -133,20 +133,64 @@ class StayAwakePygameController:
             model.student.stayAwake()
         elif event.key == pygame.K_UP:
             model.student.goToSleep()
+<<<<<<< HEAD
         elif event.key == pygame.K_SPACE:
             if self.model.coffee.vx!=0:
                 self.model.coffeebonus = True
+=======
+#        elif event.key == pygame.K_SPACE:
+#            if self.model.coffee.vx!=0:
+#                if self.model.coffee
+>>>>>>> def710ee6605ce6d3a4de42ecc5c53c5ffa88909
     
-        
+class StayAwakeView:# The view for the game. This gets the images of the game!
+    """A view of brick breaker rendered"""
+    def __init__(self, model, screen):
+        self.model = model
+        self.screen = screen
+        #initializes the game with this Image!
+        ball = pygame.image.load("background2.jpg")
+        ballrect = ball.get_rect()
+        screen.blit(ball, ballrect)              
 
+        
+    def draw(self): #state is the sleepiness of the student
+        #imports the image file of the student. There are 4 images for the student, one for each level of sleepiness.        
+        state = self.model.student.sleep        
+        if int(state) == 1: #Most awake:
+            ball = pygame.image.load("background2.jpg")
+            ballrect = ball.get_rect()
+            screen.blit(ball, ballrect)
+        elif int(state) == 2:
+            ball = pygame.image.load("background2.jpg")
+            ballrect = ball.get_rect()
+            screen.blit(ball, ballrect)
+        elif int(state) == 3:
+            ball = pygame.image.load("background3.jpg")
+            ballrect = ball.get_rect()
+            screen.blit(ball, ballrect)
+        elif int(state) == 4:
+            ball = pygame.image.load("background4.jpg")
+            ballrect = ball.get_rect()
+            screen.blit(ball, ballrect)
+        elif int(state) == 5: #Asleep!
+            ball = pygame.image.load("background5.jpg")            
+            ballrect = ball.get_rect()
+            screen.blit(ball, ballrect)
+        pygame.display.update()
+        
 if __name__ == '__main__':
     pygame.init()
-    size = (640, 480)
+    size = (900, 700)
     screen = pygame.display.set_mode(size)
     
+    #MVC BELOW!!!!!!!!!!!!!!!
     model = StayAwakeModel()
     controller = StayAwakePygameController(model)
+    view = StayAwakeView(model, screen) #<== View    
     running = True
+    #Yeahhhhhhh!!!!!!!!!!!!!!
+    
     
     pygame.display.set_caption("Text adventures with Pygame")
     # pick a font you have and set its size
@@ -168,15 +212,17 @@ if __name__ == '__main__':
                 controller.handle_keyboard_event(event)
         model.update()
         white = Color(255,255,255)
-        sleeplabel = myfont.render("sleep: "+str(model.student.sleep), 1, white)
-        energylabel = myfont.render("energy: "+str(model.student.energy),1, white)
-        suslabel = myfont.render("suspicion: "+str(model.prof.suspicion),1,white)
-        screen.fill(pygame.Color(0,0,0))
+        black = Color(0,0,0)
+        sleeplabel = myfont.render("sleep: "+str(model.student.sleep), 1, black)
+        energylabel = myfont.render("energy: "+str(model.student.energy),1, black)
+        suslabel = myfont.render("suspicion: "+str(model.prof.suspicion),1,black)
+        #screen.fill(pygame.Color(255,255,255))
         if model.play== False:
             loselabel = myfont.render("YOU LOST",1,white)
             screen.blit(loselabel, (100, 200))
         screen.blit(sleeplabel, (100,20))
         screen.blit(energylabel, (100,100))
+        screen.blit(suslabel, (100,150))
         screen.blit(suslabel, (100,150))
         pygame.display.flip()
         #if model.play == False:
@@ -184,6 +230,7 @@ if __name__ == '__main__':
          #   running = False #maybe don't end this here but I'm going to for now
         #print "sleep: "+str(model.student.sleep)+" , energy: "+str(model.student.energy)
         time.sleep(0.001)
+        view.draw()
         
     pygame.quit()
     #print model.student.sleep
