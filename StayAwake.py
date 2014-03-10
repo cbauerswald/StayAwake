@@ -123,12 +123,15 @@ class StayAwakeModel():
                 self.addCoffeeBonus()  
     
     def addCoffeeBonus(self):
-        if self.waited<0.2:
+        if self.waited<0.2 and self.student.energy<=3:
             self.student.energy += 2
+        elif self.waited<0.2 and self.student.energy>3:
+            self.student.energy +=5.0-self.student.energy
         elif self.waited>2:
             self.student.sleep -=1
             self.waited =0
             self.coffeebonus = False
+
 
 class StayAwakePygameController:
     
