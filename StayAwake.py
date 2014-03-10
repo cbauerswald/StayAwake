@@ -57,34 +57,57 @@ class Prof():
     def __init__(self):
         self.suspicion = 0
         self.looking = False
+        self.level = 1
     
     def update(self):
         if self.suspicion>9.7:
             pass
-            #self.looking = True #if suspicion goes up to about 10, the prof catches you. be careful!
+            self.looking = True #if suspicion goes up to about 10, the prof catches you. be careful!
         if self.suspicion > 7.5:
             rand = random.randint(1, 200-int(self.suspicion))  # if suspicion is above 7.5, the prof might catch you. the higher above, the more likely you'll be caught
             if rand<1:
                 pass
-                #self.looking = True
+                self.looking = True      
+        
+class Coffee:
+    def __init__(self, xinit, yinit):
+        self.xinit = xinit
+        self.xpos= xinit
+        self.ypos = yinit
+        self.vx =0
+    
+    def coffeeGo(self, vx):
+        self.vx = vx
+    
+    def coffeeMove(self):
+        self.xpos +=self.vx
+        if self.xpos<=0:
+            self.xpos = self.xinit
+            self.vx =0
+    
+
                 
 class StayAwakeModel():
     
-    def __init__(self):
+    def __init__(self, windowwidth, windowheight):
         self.student = Student()
         self.prof = Prof()
         self.play = True
+        self.coffee = Coffee(windowwidth +10, windowheight/2)
+        self.time = 0
     
-    def update(self):
-        #self.prof.teach()
+    def update(self, time):
+        self.time = (time - self.time)/1000
+        if int(self.time) == random.randint(5,20): #if the time that has passed is some random number between 5 and 20 seconds, send a coffee
+            self.coffee.coffeeGo(-1)
+        self.coffee.coffeeMove() #move the coffee, this could just go 0
         self.student.update()
         if self.student.sleep>2 and self.prof.suspicion<10:
-            #print "up susp"
             self.prof.suspicion += self.student.sleep/100
         elif self.student.sleep<=2 and self.prof.suspicion >0:
-            self.prof.suspicion += 0.01
+            self.prof.suspicion +=-0.01*self.prof.level
         self.prof.update()
-        if self.prof.looking == True:
+        if self.prof.looking == True and self.student.sleep<2 or self.student.energy<=-5:
             print "he saw :("
             self.play = False
         
@@ -101,6 +124,9 @@ class StayAwakePygameController:
             model.student.stayAwake()
         elif event.key == pygame.K_UP:
             model.student.goToSleep()
+        elif event.key == pygame.K_SPACE:
+            if self.model.coffee.vx!=0:
+                if self.model.coffee
     
         
 
