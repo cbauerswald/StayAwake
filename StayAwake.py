@@ -48,20 +48,20 @@ class Student():
         elif self.sleep>=5.0:
             self.sleep=5.0
         if self.sleep>2 and self.energy<5:
-            self.energy+=0.005*self.sleep #if sleep is greater than 2, you get energy!
+            self.energy+=0.02*self.sleep #if sleep is greater than 2, you get energy!
         elif self.energy>-5: #only happens if self.sleep is less than  or = to 2n"            
-            self.energy+=-0.01 #if sleep is not greater than 2, you lose energy!
+            self.energy+=-0.1 #if sleep is not greater than 2, you lose energy!
         if self.sleep<5 and self.energy <=0:
-            self.sleep+=0.01 #if sleep is less than 5, you naturally fall asleep, unless you have enough energy
+            self.sleep+=0.02 #if sleep is less than 5, you naturally fall asleep, unless you have enough energy
         time.sleep(0.1) #add a pause so that you don't just fall right asleep. this may not be the best way to do this/place to do this, but it works for now...
 
     def stayAwake(self):
         if self.energy > 0:
-            self.sleep += -0.05 #if you have enough energy, you wake up!
+            self.sleep += -0.2 #if you have enough energy, you wake up!
             time.sleep(0.1)
     
     def goToSleep(self):
-        self.sleep +=0.05
+        self.sleep +=0.2
         time.sleep(0.1)
         
 
@@ -111,25 +111,28 @@ class StayAwakeModel():
         self.coffeebonus = False
     
     def update(self, time):
-        self.waited += (time - self.time )/1000.0 #add the delta time to waited
-        #print self.waited
-        self.time = time
-        if int(self.waited) == random.randint(5,5): #if the time that has passed is some random number between 5 and 20 seconds, send a coffee
-            self.coffee.coffeeGo(-1)
-            self.waited =0 #reset waited to 0 once the coffee has gone by
-        #print "vx: "+str(self.coffee.vx)+"\n"+ "xpos: " +str(self.coffee.xpos) + "\n"
-        self.coffee.coffeeMove() #move the coffee, this could just go 0
-        self.student.update()
-        if self.student.sleep>2 and self.prof.suspicion<10:
-            self.prof.suspicion += self.student.sleep/100
-        elif self.student.sleep<=2 and self.prof.suspicion >0:
-            self.prof.suspicion +=-0.01*self.prof.level
-        self.prof.update()
-        if self.prof.looking == True and self.student.sleep<2 or self.student.energy<=-5:
-            print "he saw :("
-            self.play = False
-        if self.coffeebonus:
-            self.addCoffeeBonus()  
+        if self.play:
+            self.waited += (time - self.time )/1000.0 #add the delta time to waited
+            #print self.waited
+            self.time = time
+            if int(self.waited) == random.randint(5,10): #if the time that has passed is some random number between 5 and 20 seconds, send a coffee
+                self.coffee.coffeeGo(-1)
+                self.waited =0 #reset waited to 0 once the coffee has gone by
+            if int(self.waited)>10:
+                self.waited =0
+            print "vx: "+str(self.coffee.vx)+"\n"+ "xpos: " +str(self.coffee.xpos) + "\n"
+            self.coffee.coffeeMove() #move the coffee, this could just go 0
+            self.student.update()
+            if self.student.sleep>2 and self.prof.suspicion<10:
+                self.prof.suspicion += self.student.sleep/100
+            elif self.student.sleep<=2 and self.prof.suspicion >0:
+                self.prof.suspicion +=-0.01*self.prof.level
+            self.prof.update()
+            if self.prof.looking == True and self.student.sleep<2 or self.student.energy<=-5:
+                print "he saw :("
+                self.play = False
+            if self.coffeebonus:
+                self.addCoffeeBonus()  
     
     def addCoffeeBonus(self):
         if self.waited<0.2:
@@ -145,8 +148,8 @@ class StayAwakePygameController:
         self.model = model
     
     def handle_keyboard_event(self,event):
-        if event.type != KEYDOWN:
-            return
+        if event.type != KEYDOWN or not self.model.play:
+            return 
         if event.key==pygame.K_DOWN:
             model.student.stayAwake()
         elif event.key == pygame.K_UP:
@@ -174,9 +177,25 @@ class StayAwakeView:# The view for the game. This gets the images of the game!
 
         pygame.display.update()
     
-    def awakebar(self):
-        pygame.draw.rect(screen, pygame.Color(255,0,0), pygame.Rect(800,600,10,100))
-        pygame.display.update()        
+    def energybar(self):
+        energy = model.student.energy * 50
+        pygame.draw.rect(screen, pygame.Color(0,0, 0), pygame.Rect(850,300 - 250,30,250-energy))
+        pygame.draw.rect(screen, pygame.Color(255,0, 0), pygame.Rect(850,300 - energy,30,255+energy))
+        energylabel = myfont.render("ENERGY",1,pygame.Color(255,0,0))
+        print"300-energy", + 300-energy
+        print"energy", + model.student.energy
+        screen.blit(energylabel, (824, 560))
+        pygame.display.update()  
+        
+    def suspbar(self):
+        sus = model.prof.suspicion * 50
+        pygame.draw.rect(screen, pygame.Color(0,0, 0), pygame.Rect(850,300 - 250,30,250-energy))
+        pygame.draw.rect(screen, pygame.Color(0,0, 255), pygame.Rect(850,300 - energy,30,255+energy))
+        energylabel = myfont.render("ENERGY",1,pygame.Color(255,0,0))
+        print"300-energy", + 300-energy
+        print"energy", + model.student.energy
+        screen.blit(energylabel, (824, 560))
+        pygame.display.update()
 
         
 class Teacher_Sprite(pygame.sprite.Sprite):#sprite for the teacher. Teacher will turn head
@@ -198,25 +217,25 @@ class Head_Sprite(pygame.sprite.Sprite):#sprite for the teacher. Teacher will tu
         state = model.student.sleep
         if int(state) == 0:
             print "0"
-            self.image, self.rect = load_image('background2.jpg', -1)
+            self.image, self.rect = load_image('head1.jpg', 0)
         elif int(state) == 1:
             print "1"            
-            self.image, self.rect = load_image('background2.jpg', -1)
+            self.image, self.rect = load_image('head1.jpg', 0)
         elif int(state) == 2:
             print "2"            
-            self.image, self.rect = load_image('background3.jpg', -1)
+            self.image, self.rect = load_image('head2.jpg', 0)
         elif int(state) == 3:
             print "3"            
-            self.image, self.rect = load_image('background4.jpg', -1) 
+            self.image, self.rect = load_image('head3.jpg', 0) 
         elif int(state) == 4:
             print "4"            
-            self.image, self.rect = load_image('background5.jpg', -1)
+            self.image, self.rect = load_image('head4.jpg', 0)
         elif int(state) == 5:
             print "5"
-            self.image, self.rect = load_image('background5.jpg', -1)
+            self.image, self.rect = load_image('head4.jpg', 0)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
-        self.rect.topleft = 0,0
+        self.rect.topleft = 60,250
               
         
         
@@ -278,12 +297,12 @@ if __name__ == '__main__':
 #        screen.blit(suslabel, (100,150))
 #        screen.blit(suslabel, (100,150))
         pygame.display.flip()
-        #if model.play == False:
+        if model.play == False:
             #do some sort of end game thing on the screen, maybe with an option to start over
-         #   running = False #maybe don't end this here but I'm going to for now
+            running = False #maybe don't end this here but I'm going to for now
         #print "sleep: "+str(model.student.sleep)+" , energy: "+str(model.student.energy)
         head.draw()
-        view.awakebar()        
+        view.energybar()        
         allsprites.update()
         allsprites.draw(screen)        
         time.sleep(0.001)
