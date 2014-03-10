@@ -1,7 +1,7 @@
 Stay Awake!
 -----------
 
-Welcome to the longest day of Paulette's life. She's stuck in a boring class (Rules of Cribbage, AHS001) yet again. Worse yet, she hasn't had much sleep, so she is quickly losing energy. Help her take power naps in class by vigorously pressing the up-arrow key (this increases her energy). But be careful, doing so increases the suspicion of the mean-ol' teacher, Professor Ozwald. 
+Welcome to the longest day of Paulette's life. She's stuck in a boring class (Rules of Cribbage, AHS001) yet again. Worse yet, she hasn't had much sleep, so she is quickly losing energy. Help her take power naps in class by vigorously pressing the up-arrow key (this makes her go to sleep) or the down arrow key (this wakes her up). But be careful, sleeping increases the suspicion of the mean-ol' teacher, Professor Ozwald. 
 
 How to win: In real life, it is not who wins, but who is left. Try to not lose for the longest.
 
