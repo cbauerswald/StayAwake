@@ -4,7 +4,7 @@ Created on Mon Mar  3 15:01:14 2014
 
 @author: cauerswald
 """
-
+import os, pygame
 import pygame
 from pygame.locals import *
 import random
@@ -24,6 +24,22 @@ suspicion is on a scale of 0-10
     when it gets above 9.5 (aka is about 10), the prof looks!
     
 '''
+
+#functions to load images. Taken from the pygame website. Awwwww Yeaaah! Thnx Pygame!
+def load_image(name, colorkey=None):
+    fullname = os.path.join(name)
+    try:
+        image = pygame.image.load(fullname)
+    except pygame.error, message:
+        print 'Cannot load image:', fullname
+        raise SystemExit, message
+    image = image.convert()
+    if colorkey is not None:
+        if colorkey is -1:
+            colorkey = image.get_at((0,0))
+        image.set_colorkey(colorkey, RLEACCEL)
+    return image, image.get_rect()
+
 class Student():
 
     def __init__(self):
@@ -141,46 +157,31 @@ class StayAwakePygameController:
 class StayAwakeView:# The view for the game. This gets the images of the game!
     """A view of brick breaker rendered"""
     def __init__(self, model, screen):
-        self.model = model
-        self.screen = screen
-        #initializes the game with this Image!
-        ball = pygame.image.load("background2.jpg")
-        ballrect = ball.get_rect()
-        screen.blit(ball, ballrect)              
+        #making the background image yo
+        background = pygame.image.load("background2.jpg")
+        backgroundRect = background.get_rect()
+        size = (width, height) = background.get_size()
+        screen = pygame.display.set_mode(size)
+        screen.blit(background, backgroundRect)         
 
-        
-    def draw(self): #state is the sleepiness of the student
-        #imports the image file of the student. There are 4 images for the student, one for each level of sleepiness.        
-        state = self.model.student.sleep
-        teacher = pygame.image.load("teacher11.jpg")
-        teacherrect = teacher.get_rect()
-        screen.blit(teacher, teacherrect)        
-        if int(state) == 1: #Most awake:
-            ball = pygame.image.load("background2.jpg")
-            ballrect = ball.get_rect()
-            screen.blit(ball, ballrect)
-        elif int(state) == 2:
-            ball = pygame.image.load("background2.jpg")
-            ballrect = ball.get_rect()
-            screen.blit(ball, ballrect)
-        elif int(state) == 3:
-            ball = pygame.image.load("background3.jpg")
-            ballrect = ball.get_rect()
-            screen.blit(ball, ballrect)
-        elif int(state) == 4:
-            ball = pygame.image.load("background4.jpg")
-            ballrect = ball.get_rect()
-            screen.blit(ball, ballrect)
-        elif int(state) == 5: #Asleep!
-            ball = pygame.image.load("background5.jpg")            
-            ballrect = ball.get_rect()
-            screen.blit(ball, ballrect)
         pygame.display.update()
+        
+        
+class Teacher_Sprite(pygame.sprite.Sprite):#sprite for the teacher. Teacher will turn head
+    """Makes a teacher sprite who looks around."""
+    def __init__(self):
+        pygame.sprite.Sprite.__init__(self) #call Sprite intializer
+        self.image, self.rect = load_image('teacher11.png', -1)
+        screen = pygame.display.get_surface()
+        self.area = screen.get_rect()
+        self.rect.topleft = 600, 20
+    
         
 if __name__ == '__main__':
     pygame.init()
     size = (900, 700)
     screen = pygame.display.set_mode(size)
+
     
     #MVC BELOW!!!!!!!!!!!!!!!
     model = StayAwakeModel(size[0], size[1])
@@ -189,8 +190,13 @@ if __name__ == '__main__':
     running = True
     #Yeahhhhhhh!!!!!!!!!!!!!!
     
+    #Sprite(s)!!!!!!!!!!!!!!!
+    teacher = Teacher_Sprite()
+    allsprites = pygame.sprite.RenderPlain((teacher))
+    #Yeaaaaaaaaaaaaaaahhh!!!!
     
-    pygame.display.set_caption("Text adventures with Pygame")
+    
+    pygame.display.set_caption("Stay Awake!")
     # pick a font you have and set its size
     myfont = pygame.font.SysFont("Comic Sans MS", 30)
     # apply it to text on a label
@@ -229,7 +235,10 @@ if __name__ == '__main__':
          #   running = False #maybe don't end this here but I'm going to for now
         #print "sleep: "+str(model.student.sleep)+" , energy: "+str(model.student.energy)
         time.sleep(0.001)
-        view.draw()
+        allsprites.update()
+        allsprites.draw(screen)
+        
+
         
     pygame.quit()
     #print model.student.sleep
