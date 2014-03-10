@@ -72,13 +72,12 @@ class Prof():
         self.level = 1
     
     def update(self):
-        if self.suspicion>9.7:
-            pass
+        #print "suspicion: " + str(self.suspicion)
+        if self.suspicion>9:
             self.looking = True #if suspicion goes up to about 10, the prof catches you. be careful!
-        if self.suspicion > 7.5:
-            rand = random.randint(1, 200-int(self.suspicion))  # if suspicion is above 7.5, the prof might catch you. the higher above, the more likely you'll be caught
-            if rand<1:
-                pass
+        elif self.suspicion > 7.5:
+            rand = random.randint(1, 200-int(self.suspicion))  # if suspicion is above 7.5, the prof might catch you. the higher above, the more likely you'll be caught          
+            if rand<10:
                 self.looking = True      
         
 class Coffee:
@@ -104,7 +103,7 @@ class StayAwakeModel():
     def __init__(self, windowwidth, windowheight, start_time):
         self.student = Student()
         self.prof = Prof()
-        self.play = True
+        self.play = True #should be TRUE
         self.coffee = Coffee(windowwidth +10, windowheight/2)
         self.time = start_time
         self.waited =0
@@ -112,6 +111,10 @@ class StayAwakeModel():
     
     def update(self, time):
         if self.play:
+            print self.prof.looking
+            if (self.prof.looking and self.student.sleep>=2) or self.student.energy<=-5:
+                print "he saw :("
+                self.play = False
             self.waited += (time - self.time )/1000.0 #add the delta time to waited
             #print self.waited
             self.time = time
@@ -120,17 +123,14 @@ class StayAwakeModel():
                 self.waited =0 #reset waited to 0 once the coffee has gone by
             if int(self.waited)>10:
                 self.waited =0
-            print "vx: "+str(self.coffee.vx)+"\n"+ "xpos: " +str(self.coffee.xpos) + "\n"
+            #print "vx: "+str(self.coffee.vx)+"\n"+ "xpos: " +str(self.coffee.xpos) + "\n"
             self.coffee.coffeeMove() #move the coffee, this could just go 0
             self.student.update()
             if self.student.sleep>2 and self.prof.suspicion<10:
-                self.prof.suspicion += self.student.sleep/100
+                self.prof.suspicion += self.student.sleep/10
             elif self.student.sleep<=2 and self.prof.suspicion >0:
                 self.prof.suspicion +=-0.01*self.prof.level
             self.prof.update()
-            if self.prof.looking == True and self.student.sleep<2 or self.student.energy<=-5:
-                print "he saw :("
-                self.play = False
             if self.coffeebonus:
                 self.addCoffeeBonus()  
     
@@ -246,7 +246,13 @@ if __name__ == '__main__':
     pygame.init()
     size = (900, 700)
     screen = pygame.display.set_mode(size)
-
+    startback = pygame.image.load("start.jpg")
+    startbackRect = startback.get_rect()
+    #size = (width, height) = startback.get_size()
+    screen = pygame.display.set_mode(size)
+    screen.blit(startback, startbackRect)
+    pygame.display.update()
+    time.sleep(2)
     
     #MVC BELOW!!!!!!!!!!!!!!!
     model = StayAwakeModel(size[0], size[1], pygame.time.get_ticks())
@@ -302,13 +308,22 @@ if __name__ == '__main__':
         pygame.display.flip()
         if model.play == False:
             #do some sort of end game thing on the screen, maybe with an option to start over
+            print "the game is off....:("
+            lose = pygame.image.load("lose.jpg")
+            loseRect = lose.get_rect()
+            size = (width, height) = lose.get_size()
+            screen = pygame.display.set_mode(size)
+            screen.blit(lose, loseRect)
+            pygame.display.update()
+            time.sleep(5)
             running = False #maybe don't end this here but I'm going to for now
         #print "sleep: "+str(model.student.sleep)+" , energy: "+str(model.student.energy)
-        head.draw()
-        view.energybar()        
-        allsprites.update()
-        allsprites.draw(screen)        
-        time.sleep(0.001)
+        else:
+            head.draw()
+            view.energybar()        
+            allsprites.update()
+            allsprites.draw(screen)        
+            time.sleep(0.001)
 
     pygame.quit()
     #print model.student.sleep
