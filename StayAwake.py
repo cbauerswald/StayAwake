@@ -105,21 +105,23 @@ class Coffee:
                 
 class StayAwakeModel():
     
-    def __init__(self, windowwidth, windowheight):
+    def __init__(self, windowwidth, windowheight, start_time):
         self.student = Student()
         self.prof = Prof()
         self.play = True
         self.coffee = Coffee(windowwidth +10, windowheight/2)
-        self.time = 0
+        self.time = start_time
         self.waited =0
         self.coffeebonus = False
     
     def update(self, time):
-        self.waited += (time - self.time )/1000 #add the delta time to waited
+        self.waited += (time - self.time )/1000.0 #add the delta time to waited
+        #print self.waited
         self.time = time
-        if int(self.waited) == random.randint(5,20): #if the time that has passed is some random number between 5 and 20 seconds, send a coffee
+        if int(self.waited) == random.randint(5,5): #if the time that has passed is some random number between 5 and 20 seconds, send a coffee
             self.coffee.coffeeGo(-1)
             self.waited =0 #reset waited to 0 once the coffee has gone by
+        print "vx: "+str(self.coffee.vx)+"\n"+ "xpos: " +str(self.coffee.xpos) + "\n"
         self.coffee.coffeeMove() #move the coffee, this could just go 0
         self.student.update()
         if self.student.sleep>2 and self.prof.suspicion<10:
@@ -133,9 +135,13 @@ class StayAwakeModel():
         if self.coffeebonus:
             self.addCoffeeBonus()  
     
-    def addCoffeeBonus(time):
-        #if time<
-        self.student.energy += 2
+    def addCoffeeBonus(self):
+        if self.waited<0.2:
+            self.student.energy += 2
+        elif self.waited>2:
+            self.student.sleep -=1
+            self.waited =0
+            self.coffeebonus = False
 
 class StayAwakePygameController:
     
@@ -151,7 +157,11 @@ class StayAwakePygameController:
             model.student.goToSleep()
         elif event.key == pygame.K_SPACE:
             if self.model.coffee.vx!=0:
+                self.model.waited = 0
                 self.model.coffeebonus = True
+                self.model.coffee.vx = 0
+                self.model.coffee.xpos = self.model.coffee.xinit
+                
 
     
 class StayAwakeView:# The view for the game. This gets the images of the game!
@@ -184,7 +194,7 @@ if __name__ == '__main__':
 
     
     #MVC BELOW!!!!!!!!!!!!!!!
-    model = StayAwakeModel(size[0], size[1])
+    model = StayAwakeModel(size[0], size[1], pygame.time.get_ticks())
     controller = StayAwakePygameController(model)
     view = StayAwakeView(model, screen) #<== View    
     running = True
@@ -218,17 +228,21 @@ if __name__ == '__main__':
         model.update(gametime)
         white = Color(255,255,255)
         black = Color(0,0,0)
-        sleeplabel = myfont.render("sleep: "+str(model.student.sleep), 1, black)
-        energylabel = myfont.render("energy: "+str(model.student.energy),1, black)
-        suslabel = myfont.render("suspicion: "+str(model.prof.suspicion),1,black)
+#        sleeplabel = myfont.render("sleep: "+str(model.student.sleep), 1, black)
+#        energylabel = myfont.render("energy: "+str(model.student.energy),1, black)
+#        suslabel = myfont.render("suspicion: "+str(model.prof.suspicion),1,black)
         #screen.fill(pygame.Color(255,255,255))
-        if model.play== False:
-            loselabel = myfont.render("YOU LOST",1,white)
+        if model.coffee.vx!=0:
+            loselabel = myfont.render("COFFEE BONUS",1,black)
             screen.blit(loselabel, (100, 200))
-        screen.blit(sleeplabel, (100,20))
-        screen.blit(energylabel, (100,100))
-        screen.blit(suslabel, (100,150))
-        screen.blit(suslabel, (100,150))
+#        print "sleep: "+str(model.student.sleep)
+#        print "energy: "+str(model.student.energy)
+#        print "suspicion: "+str(model.prof.suspicion)
+#        print "\n"
+#        screen.blit(sleeplabel, (100,20))
+#        screen.blit(energylabel, (100,100))
+#        screen.blit(suslabel, (100,150))
+#        screen.blit(suslabel, (100,150))
         pygame.display.flip()
         #if model.play == False:
             #do some sort of end game thing on the screen, maybe with an option to start over
