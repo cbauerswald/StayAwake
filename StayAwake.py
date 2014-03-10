@@ -114,7 +114,7 @@ class StayAwakeModel():
         if self.prof.looking == True and self.student.sleep<2 or self.student.energy<=-5:
             print "he saw :("
             self.play = False
-        if self.coffeeBonus:
+        if self.coffeebonus:
             self.addCoffeeBonus()  
     
     def addCoffeeBonus(time):
@@ -133,15 +133,10 @@ class StayAwakePygameController:
             model.student.stayAwake()
         elif event.key == pygame.K_UP:
             model.student.goToSleep()
-<<<<<<< HEAD
         elif event.key == pygame.K_SPACE:
             if self.model.coffee.vx!=0:
                 self.model.coffeebonus = True
-=======
-#        elif event.key == pygame.K_SPACE:
-#            if self.model.coffee.vx!=0:
-#                if self.model.coffee
->>>>>>> def710ee6605ce6d3a4de42ecc5c53c5ffa88909
+
     
 class StayAwakeView:# The view for the game. This gets the images of the game!
     """A view of brick breaker rendered"""
@@ -185,7 +180,7 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode(size)
     
     #MVC BELOW!!!!!!!!!!!!!!!
-    model = StayAwakeModel()
+    model = StayAwakeModel(size[0], size[1])
     controller = StayAwakePygameController(model)
     view = StayAwakeView(model, screen) #<== View    
     running = True
@@ -210,7 +205,8 @@ if __name__ == '__main__':
                 if event.key == pygame.K_q:
                     running = False
                 controller.handle_keyboard_event(event)
-        model.update()
+        gametime=pygame.time.get_ticks()
+        model.update(gametime)
         white = Color(255,255,255)
         black = Color(0,0,0)
         sleeplabel = myfont.render("sleep: "+str(model.student.sleep), 1, black)
