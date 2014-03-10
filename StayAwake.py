@@ -28,11 +28,7 @@ suspicion is on a scale of 0-10
 #functions to load images. Taken from the pygame website. Awwwww Yeaaah! Thnx Pygame!
 def load_image(name, colorkey=None):
     fullname = os.path.join(name)
-    try:
-        image = pygame.image.load(fullname)
-    except pygame.error, message:
-        print 'Cannot load image:', fullname
-        raise SystemExit, message
+    image = pygame.image.load(fullname)
     image = image.convert()
     if colorkey is not None:
         if colorkey is -1:
@@ -121,7 +117,7 @@ class StayAwakeModel():
         if int(self.waited) == random.randint(5,5): #if the time that has passed is some random number between 5 and 20 seconds, send a coffee
             self.coffee.coffeeGo(-1)
             self.waited =0 #reset waited to 0 once the coffee has gone by
-        print "vx: "+str(self.coffee.vx)+"\n"+ "xpos: " +str(self.coffee.xpos) + "\n"
+        #print "vx: "+str(self.coffee.vx)+"\n"+ "xpos: " +str(self.coffee.xpos) + "\n"
         self.coffee.coffeeMove() #move the coffee, this could just go 0
         self.student.update()
         if self.student.sleep>2 and self.prof.suspicion<10:
@@ -167,15 +163,21 @@ class StayAwakePygameController:
 class StayAwakeView:# The view for the game. This gets the images of the game!
     """A view of brick breaker rendered"""
     def __init__(self, model, screen):
+        self.model = model
+        self.screen = screen
         #making the background image yo
-        background = pygame.image.load("background2.jpg")
+        background = pygame.image.load("background.jpg")
         backgroundRect = background.get_rect()
         size = (width, height) = background.get_size()
         screen = pygame.display.set_mode(size)
         screen.blit(background, backgroundRect)         
 
         pygame.display.update()
-        
+    
+    def awakebar(self):
+        pygame.draw.rect(screen, pygame.Color(255,0,0), pygame.Rect(800,600,10,100))
+        pygame.display.update()        
+
         
 class Teacher_Sprite(pygame.sprite.Sprite):#sprite for the teacher. Teacher will turn head
     """Makes a teacher sprite who looks around."""
@@ -184,8 +186,39 @@ class Teacher_Sprite(pygame.sprite.Sprite):#sprite for the teacher. Teacher will
         self.image, self.rect = load_image('teacher11.png', -1)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
-        self.rect.topleft = 600, 20
-    
+        self.rect.topleft = 600, 30
+        
+class Head_Sprite(pygame.sprite.Sprite):#sprite for the teacher. Teacher will turn head
+    """Makes a teacher sprite who looks around."""
+    def __init__(self, model):
+        pygame.sprite.Sprite.__init__(self) #call Sprite intializer
+        self.model = model
+
+    def draw(self):
+        state = model.student.sleep
+        if int(state) == 0:
+            print "0"
+            self.image, self.rect = load_image('background2.jpg', -1)
+        elif int(state) == 1:
+            print "1"            
+            self.image, self.rect = load_image('background2.jpg', -1)
+        elif int(state) == 2:
+            print "2"            
+            self.image, self.rect = load_image('background3.jpg', -1)
+        elif int(state) == 3:
+            print "3"            
+            self.image, self.rect = load_image('background4.jpg', -1) 
+        elif int(state) == 4:
+            print "4"            
+            self.image, self.rect = load_image('background5.jpg', -1)
+        elif int(state) == 5:
+            print "5"
+            self.image, self.rect = load_image('background5.jpg', -1)
+        screen = pygame.display.get_surface()
+        self.area = screen.get_rect()
+        self.rect.topleft = 0,0
+              
+        
         
 if __name__ == '__main__':
     pygame.init()
@@ -202,7 +235,8 @@ if __name__ == '__main__':
     
     #Sprite(s)!!!!!!!!!!!!!!!
     teacher = Teacher_Sprite()
-    allsprites = pygame.sprite.RenderPlain((teacher))
+    head = Head_Sprite(model)
+    allsprites = pygame.sprite.RenderPlain((head,teacher))
     #Yeaaaaaaaaaaaaaaahhh!!!!
     
     
@@ -248,12 +282,12 @@ if __name__ == '__main__':
             #do some sort of end game thing on the screen, maybe with an option to start over
          #   running = False #maybe don't end this here but I'm going to for now
         #print "sleep: "+str(model.student.sleep)+" , energy: "+str(model.student.energy)
-        time.sleep(0.001)
+        head.draw()
+        view.awakebar()        
         allsprites.update()
-        allsprites.draw(screen)
-        
+        allsprites.draw(screen)        
+        time.sleep(0.001)
 
-        
     pygame.quit()
     #print model.student.sleep
 
