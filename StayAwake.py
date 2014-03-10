@@ -65,7 +65,7 @@ class Student():
         time.sleep(0.1)
         
 
-class Prof():
+class Prof(): #Professor class
     def __init__(self):
         self.suspicion = 0
         self.looking = False
@@ -73,12 +73,10 @@ class Prof():
     
     def update(self):
         if self.suspicion>9.7:
-            pass
             self.looking = True #if suspicion goes up to about 10, the prof catches you. be careful!
         if self.suspicion > 7.5:
             rand = random.randint(1, 200-int(self.suspicion))  # if suspicion is above 7.5, the prof might catch you. the higher above, the more likely you'll be caught
             if rand<1:
-                pass
                 self.looking = True      
         
 class Coffee:
@@ -185,19 +183,17 @@ class StayAwakeView:# The view for the game. This gets the images of the game!
         pygame.draw.rect(screen, pygame.Color(0,0, 0), pygame.Rect(850,300 - 250,30,250-energy))
         pygame.draw.rect(screen, pygame.Color(255,0, 0), pygame.Rect(850,300 - energy,30,255+energy))
         energylabel = myfont.render("ENERGY",1,pygame.Color(255,0,0))
-        print"300-energy", + 300-energy
-        print"energy", + model.student.energy
         screen.blit(energylabel, (824, 560))
         pygame.display.update()  
         
     def suspbar(self):
-        sus = model.prof.suspicion * 50
-        pygame.draw.rect(screen, pygame.Color(0,0, 0), pygame.Rect(850,300 - 250,30,250-energy))
-        pygame.draw.rect(screen, pygame.Color(0,0, 255), pygame.Rect(850,300 - energy,30,255+energy))
-        energylabel = myfont.render("ENERGY",1,pygame.Color(255,0,0))
-        print"300-energy", + 300-energy
-        print"energy", + model.student.energy
-        screen.blit(energylabel, (824, 560))
+        sus = model.prof.suspicion * 20
+        pygame.draw.rect(screen, pygame.Color(0,0, 0), pygame.Rect(200+sus,60,200-sus,20))
+        pygame.draw.rect(screen, pygame.Color(0,0, 255), pygame.Rect(200,60,sus,20))
+        print "sus", + sus
+        print "model.prof", + model.prof.suspicion
+        suslabel = myfont.render("SUSPICION",1,pygame.Color(0,0,255))
+        screen.blit(suslabel, (80, 60))
         pygame.display.update()
 
         
@@ -305,7 +301,8 @@ if __name__ == '__main__':
             running = False #maybe don't end this here but I'm going to for now
         #print "sleep: "+str(model.student.sleep)+" , energy: "+str(model.student.energy)
         head.draw()
-        view.energybar()        
+        view.energybar()       
+        view.suspbar()
         allsprites.update()
         allsprites.draw(screen)        
         time.sleep(0.001)
