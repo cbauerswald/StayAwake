@@ -65,7 +65,7 @@ class Student():
         time.sleep(0.1)
         
 
-class Prof():
+class Prof(): #Professor class
     def __init__(self):
         self.suspicion = 0
         self.looking = False
@@ -111,7 +111,6 @@ class StayAwakeModel():
     
     def update(self, time):
         if self.play:
-            print self.prof.looking
             if (self.prof.looking and self.student.sleep>=2) or self.student.energy<=-5:
                 print "he saw :("
                 self.play = False
@@ -127,7 +126,7 @@ class StayAwakeModel():
             self.coffee.coffeeMove() #move the coffee, this could just go 0
             self.student.update()
             if self.student.sleep>2 and self.prof.suspicion<10:
-                self.prof.suspicion += self.student.sleep/10
+                self.prof.suspicion += self.student.sleep/30
             elif self.student.sleep<=2 and self.prof.suspicion >0:
                 self.prof.suspicion +=-0.01*self.prof.level
             self.prof.update()
@@ -185,19 +184,15 @@ class StayAwakeView:# The view for the game. This gets the images of the game!
         pygame.draw.rect(screen, pygame.Color(0,0, 0), pygame.Rect(850,300 - 250,30,250-energy))
         pygame.draw.rect(screen, pygame.Color(255,0, 0), pygame.Rect(850,300 - energy,30,255+energy))
         energylabel = myfont.render("ENERGY",1,pygame.Color(255,0,0))
-        print"300-energy", + 300-energy
-        print"energy", + model.student.energy
         screen.blit(energylabel, (824, 560))
         pygame.display.update()  
         
     def suspbar(self):
-        sus = model.prof.suspicion * 50
-        pygame.draw.rect(screen, pygame.Color(0,0, 0), pygame.Rect(850,300 - 250,30,250-energy))
-        pygame.draw.rect(screen, pygame.Color(0,0, 255), pygame.Rect(850,300 - energy,30,255+energy))
-        energylabel = myfont.render("ENERGY",1,pygame.Color(255,0,0))
-        print"300-energy", + 300-energy
-        print"energy", + model.student.energy
-        screen.blit(energylabel, (824, 560))
+        sus = model.prof.suspicion * 20
+        pygame.draw.rect(screen, pygame.Color(0,0, 0), pygame.Rect(200+sus,60,200-sus,20))
+        pygame.draw.rect(screen, pygame.Color(0,0, 255), pygame.Rect(200,60,sus,20))
+        suslabel = myfont.render("SUSPICION",1,pygame.Color(0,0,255))
+        screen.blit(suslabel, (80, 60))
         pygame.display.update()
 
         
@@ -205,7 +200,7 @@ class Teacher_Sprite(pygame.sprite.Sprite):#sprite for the teacher. Teacher will
     """Makes a teacher sprite who looks around."""
     def __init__(self):
         pygame.sprite.Sprite.__init__(self) #call Sprite intializer
-        self.image, self.rect = load_image('teacher11.png', -1)
+        self.image, self.rect = load_image('teacher55.png', -1)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
         self.rect.topleft = 600, 30
@@ -219,22 +214,16 @@ class Head_Sprite(pygame.sprite.Sprite):#sprite for the teacher. Teacher will tu
     def draw(self):
         state = model.student.sleep
         if int(state) == 0:
-            print "0"
             self.image, self.rect = load_image('head1.jpg', 0)
-        elif int(state) == 1:
-            print "1"            
+        elif int(state) == 1:          
             self.image, self.rect = load_image('head1.jpg', 0)
-        elif int(state) == 2:
-            print "2"            
+        elif int(state) == 2:            
             self.image, self.rect = load_image('head2.jpg', 0)
-        elif int(state) == 3:
-            print "3"            
+        elif int(state) == 3:            
             self.image, self.rect = load_image('head3.jpg', 0) 
-        elif int(state) == 4:
-            print "4"            
+        elif int(state) == 4:           
             self.image, self.rect = load_image('head4.jpg', 0)
         elif int(state) == 5:
-            print "5"
             self.image, self.rect = load_image('head4.jpg', 0)
         screen = pygame.display.get_surface()
         self.area = screen.get_rect()
@@ -253,9 +242,10 @@ if __name__ == '__main__':
     screen.blit(startback, startbackRect)
     pygame.display.update()
     time.sleep(2)
+    start_time = pygame.time.get_ticks()
     
     #MVC BELOW!!!!!!!!!!!!!!!
-    model = StayAwakeModel(size[0], size[1], pygame.time.get_ticks())
+    model = StayAwakeModel(size[0], size[1], start_time)
     controller = StayAwakePygameController(model)
     view = StayAwakeView(model, screen) #<== View    
     running = True
@@ -290,21 +280,12 @@ if __name__ == '__main__':
         model.update(gametime)
         white = Color(255,255,255)
         black = Color(0,0,0)
-#        sleeplabel = myfont.render("sleep: "+str(model.student.sleep), 1, black)
-#        energylabel = myfont.render("energy: "+str(model.student.energy),1, black)
-#        suslabel = myfont.render("suspicion: "+str(model.prof.suspicion),1,black)
-        #screen.fill(pygame.Color(255,255,255))
-        if model.coffee.vx!=0:
-            loselabel = myfont.render("COFFEE BONUS",1,black)
-            screen.blit(loselabel, (100, 200))
-#        print "sleep: "+str(model.student.sleep)
-#        print "energy: "+str(model.student.energy)
-#        print "suspicion: "+str(model.prof.suspicion)
-#        print "\n"
-#        screen.blit(sleeplabel, (100,20))
-#        screen.blit(energylabel, (100,100))
-#        screen.blit(suslabel, (100,150))
-#        screen.blit(suslabel, (100,150))
+        timelabel = myfont.render("Time Elapsed: "+str((pygame.time.get_ticks()-start_time)/1000),1,black)
+        screen.subsurface(pygame.Rect(70, 100, 300, 100)).fill(white)
+        screen.subsurface(pygame.Rect(70, 100, 300, 100)).blit(timelabel, (10, 20))
+#        if model.coffee.vx!=0:
+#            loselabel = myfont.render("COFFEE BONUS",1,black)
+#            screen.blit(loselabel, (100, 200))
         pygame.display.flip()
         if model.play == False:
             #do some sort of end game thing on the screen, maybe with an option to start over
@@ -317,10 +298,10 @@ if __name__ == '__main__':
             pygame.display.update()
             time.sleep(5)
             running = False #maybe don't end this here but I'm going to for now
-        #print "sleep: "+str(model.student.sleep)+" , energy: "+str(model.student.energy)
         else:
             head.draw()
-            view.energybar()        
+            view.energybar()       
+            view.suspbar()
             allsprites.update()
             allsprites.draw(screen)        
             time.sleep(0.001)
