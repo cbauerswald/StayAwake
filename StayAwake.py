@@ -124,9 +124,9 @@ class StayAwakePygameController:
             model.student.stayAwake()
         elif event.key == pygame.K_UP:
             model.student.goToSleep()
-        elif event.key == pygame.K_SPACE:
-            if self.model.coffee.vx!=0:
-                if self.model.coffee
+#        elif event.key == pygame.K_SPACE:
+#            if self.model.coffee.vx!=0:
+#                if self.model.coffee
     
 class StayAwakeView:# The view for the game. This gets the images of the game!
     """A view of brick breaker rendered"""
