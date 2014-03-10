@@ -141,7 +141,10 @@ class StayAwakeView:# The view for the game. This gets the images of the game!
         
     def draw(self): #state is the sleepiness of the student
         #imports the image file of the student. There are 4 images for the student, one for each level of sleepiness.        
-        state = self.model.student.sleep        
+        state = self.model.student.sleep
+        teacher = pygame.image.load("teacher11.jpg")
+        teacherrect = teacher.get_rect()
+        screen.blit(teacher, teacherrect)        
         if int(state) == 1: #Most awake:
             ball = pygame.image.load("background2.jpg")
             ballrect = ball.get_rect()
