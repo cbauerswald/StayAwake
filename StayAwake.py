@@ -99,25 +99,28 @@ class StayAwakeModel():
         self.coffeebonus = False
     
     def update(self, time):
-        self.waited += (time - self.time )/1000.0 #add the delta time to waited
-        #print self.waited
-        self.time = time
-        if int(self.waited) == random.randint(5,5): #if the time that has passed is some random number between 5 and 20 seconds, send a coffee
-            self.coffee.coffeeGo(-1)
-            self.waited =0 #reset waited to 0 once the coffee has gone by
-        print "vx: "+str(self.coffee.vx)+"\n"+ "xpos: " +str(self.coffee.xpos) + "\n"
-        self.coffee.coffeeMove() #move the coffee, this could just go 0
-        self.student.update()
-        if self.student.sleep>2 and self.prof.suspicion<10:
-            self.prof.suspicion += self.student.sleep/100
-        elif self.student.sleep<=2 and self.prof.suspicion >0:
-            self.prof.suspicion +=-0.01*self.prof.level
-        self.prof.update()
-        if self.prof.looking == True and self.student.sleep<2 or self.student.energy<=-5:
-            print "he saw :("
-            self.play = False
-        if self.coffeebonus:
-            self.addCoffeeBonus()  
+        if self.play:
+            self.waited += (time - self.time )/1000.0 #add the delta time to waited
+            #print self.waited
+            self.time = time
+            if int(self.waited) == random.randint(5,10): #if the time that has passed is some random number between 5 and 20 seconds, send a coffee
+                self.coffee.coffeeGo(-1)
+                self.waited =0 #reset waited to 0 once the coffee has gone by
+            if int(self.waited)>10:
+                self.waited =0
+            print "vx: "+str(self.coffee.vx)+"\n"+ "xpos: " +str(self.coffee.xpos) + "\n"
+            self.coffee.coffeeMove() #move the coffee, this could just go 0
+            self.student.update()
+            if self.student.sleep>2 and self.prof.suspicion<10:
+                self.prof.suspicion += self.student.sleep/100
+            elif self.student.sleep<=2 and self.prof.suspicion >0:
+                self.prof.suspicion +=-0.01*self.prof.level
+            self.prof.update()
+            if self.prof.looking == True and self.student.sleep<2 or self.student.energy<=-5:
+                print "he saw :("
+                self.play = False
+            if self.coffeebonus:
+                self.addCoffeeBonus()  
     
     def addCoffeeBonus(self):
         if self.waited<0.2:
@@ -133,8 +136,8 @@ class StayAwakePygameController:
         self.model = model
     
     def handle_keyboard_event(self,event):
-        if event.type != KEYDOWN:
-            return
+        if event.type != KEYDOWN or not self.model.play:
+            return 
         if event.key==pygame.K_DOWN:
             model.student.stayAwake()
         elif event.key == pygame.K_UP:
@@ -235,9 +238,9 @@ if __name__ == '__main__':
 #        screen.blit(suslabel, (100,150))
 #        screen.blit(suslabel, (100,150))
         pygame.display.flip()
-        #if model.play == False:
+        if model.play == False:
             #do some sort of end game thing on the screen, maybe with an option to start over
-         #   running = False #maybe don't end this here but I'm going to for now
+            running = False #maybe don't end this here but I'm going to for now
         #print "sleep: "+str(model.student.sleep)+" , energy: "+str(model.student.energy)
         time.sleep(0.001)
         view.draw()
