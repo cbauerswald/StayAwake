@@ -95,11 +95,15 @@ class StayAwakeModel():
         self.play = True
         self.coffee = Coffee(windowwidth +10, windowheight/2)
         self.time = 0
+        self.waited =0
+        self.coffeebonus = False
     
     def update(self, time):
-        self.time = (time - self.time)/1000
-        if int(self.time) == random.randint(5,20): #if the time that has passed is some random number between 5 and 20 seconds, send a coffee
+        self.waited += (time - self.time )/1000 #add the delta time to waited
+        self.time = time
+        if int(self.waited) == random.randint(5,20): #if the time that has passed is some random number between 5 and 20 seconds, send a coffee
             self.coffee.coffeeGo(-1)
+            self.waited =0 #reset waited to 0 once the coffee has gone by
         self.coffee.coffeeMove() #move the coffee, this could just go 0
         self.student.update()
         if self.student.sleep>2 and self.prof.suspicion<10:
@@ -110,7 +114,12 @@ class StayAwakeModel():
         if self.prof.looking == True and self.student.sleep<2 or self.student.energy<=-5:
             print "he saw :("
             self.play = False
-        
+        if self.coffeebonus:
+            self.addCoffeeBonus()  
+    
+    def addCoffeeBonus(time):
+        #if time<
+        self.student.energy += 2
 
 class StayAwakePygameController:
     
@@ -124,9 +133,10 @@ class StayAwakePygameController:
             model.student.stayAwake()
         elif event.key == pygame.K_UP:
             model.student.goToSleep()
-#        elif event.key == pygame.K_SPACE:
-#            if self.model.coffee.vx!=0:
-#                if self.model.coffee
+        elif event.key == pygame.K_SPACE:
+            if self.model.coffee.vx!=0:
+                self.model.coffeebonus = True
+
     
 class StayAwakeView:# The view for the game. This gets the images of the game!
     """A view of brick breaker rendered"""
@@ -173,7 +183,7 @@ if __name__ == '__main__':
     screen = pygame.display.set_mode(size)
     
     #MVC BELOW!!!!!!!!!!!!!!!
-    model = StayAwakeModel()
+    model = StayAwakeModel(size[0], size[1])
     controller = StayAwakePygameController(model)
     view = StayAwakeView(model, screen) #<== View    
     running = True
@@ -198,7 +208,8 @@ if __name__ == '__main__':
                 if event.key == pygame.K_q:
                     running = False
                 controller.handle_keyboard_event(event)
-        model.update()
+        gametime=pygame.time.get_ticks()
+        model.update(gametime)
         white = Color(255,255,255)
         black = Color(0,0,0)
         sleeplabel = myfont.render("sleep: "+str(model.student.sleep), 1, black)
